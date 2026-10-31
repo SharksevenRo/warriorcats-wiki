@@ -129,15 +129,15 @@
   "overview": {
     "guides": {
       "overviewTitle": "All Guides",
-      "overviewDescription": "Guides content for Warrior Cats: Clans of the Forest. Replace this overview text in the locale JSON — it feeds the category page title and description."
+      "overviewDescription": "Beginner guides for Warrior Cats: Clans of the Forest — getting started, the four Clans, combat, the cat creator, and game modes."
     },
     "bosses": {
       "overviewTitle": "All Bosses",
-      "overviewDescription": "Bosses content for Warrior Cats: Clans of the Forest. Replace this overview text in the locale JSON — it feeds the category page title and description."
+      "overviewDescription": "Boss and enemy breakdowns for Warrior Cats: Clans of the Forest — boss locations, attack patterns, weaknesses, and proven strategies to defeat them."
     },
     "items": {
       "overviewTitle": "All Items",
-      "overviewDescription": "Items content for Warrior Cats: Clans of the Forest. Replace this overview text in the locale JSON — it feeds the category page title and description."
+      "overviewDescription": "Items and resources in Warrior Cats: Clans of the Forest — collections, useful objects, and where to find everything the forest hides."
     }
   },
   "home": {
@@ -224,8 +224,8 @@
             },
             {
               "label": "Step 2",
-              "detail": "Claim starter codes",
-              "badge": "1 min"
+              "detail": "Create your cat and pick a Clan",
+              "badge": "10 min"
             },
             {
               "label": "Step 3",
