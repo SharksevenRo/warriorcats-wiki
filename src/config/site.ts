@@ -65,7 +65,7 @@ export const site: SiteConfig = {
   name: 'Warrior Cats: Clans of the Forest Wiki',
   shortName: 'Warrior Cats Wiki',
   description: 'Complete Warrior Cats: Clans of the Forest wiki with clan campaigns, combat move lists, boss guides, and tips. Every page carries a last-verified date.',
-  domain: 'https://warriorcats.anydaykit.com',
+  domain: 'warriorcats.anydaykit.com',
   tagline: 'Your home for everything Warrior Cats: Clans of the Forest',
   legalNotice: 'Warrior Cats Wiki is a fan-made community site. Not affiliated with or endorsed by Coolabi Group, TRAILMARK Games, or Erin Hunter.',
   // Set a real address if you run no social channels — the contact page
