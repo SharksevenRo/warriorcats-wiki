@@ -166,20 +166,16 @@ describe('IndexNow production automation contract', () => {
   const job = wf.jobs?.submit;
   const steps = job?.steps ?? [];
 
-  test('runs only after the CI workflow completes', () => {
-    const trigger = (wf.on?.workflow_run ?? {}) as {
-      workflows?: string[];
-      types?: string[];
-    };
-    expect(Object.keys(wf.on ?? {})).toEqual(['workflow_run']);
-    expect(trigger.workflows).toEqual(['CI']);
-    expect(trigger.types).toEqual(['completed']);
+  test('runs on a daily schedule plus on-demand dispatch (no CI race)', () => {
+    // Deploys are human-gated: pushed commits are not live until a manual
+    // deploy lands, so a CI-triggered submit would miss the deploy-marker
+    // wait window every time. The daily cron covers steady freshness;
+    // workflow_dispatch submits right after a deploy on demand.
+    expect(Object.keys(wf.on ?? {}).sort()).toEqual(['schedule', 'workflow_dispatch']);
+    expect(wf.on?.schedule).toEqual([{ cron: '23 16 * * *' }]);
   });
 
-  test('requires successful main push CI but does not require repository variables', () => {
-    expect(job?.if).toContain("github.event.workflow_run.conclusion == 'success'");
-    expect(job?.if).toContain("github.event.workflow_run.event == 'push'");
-    expect(job?.if).toContain("github.event.workflow_run.head_branch == 'main'");
+  test('runs unconditionally but does not require repository variables', () => {
     expect(job?.if).not.toContain('vars.SITE_URL');
     expect(job?.if).not.toContain('vars.INDEXNOW_KEY');
 
@@ -199,21 +195,22 @@ describe('IndexNow production automation contract', () => {
   });
 
   test('is non-blocking and waits for the deployed matching key before submit', () => {
-    // No job-level continue-on-error: this is an independent workflow_run —
-    // failures already cannot block CI, and continue-on-error would only
-    // repaint real misconfigurations (e.g. var set, CF env missing) green.
+    // No job-level continue-on-error: failures must stay visible, and
+    // continue-on-error would only repaint real misconfigurations green.
     expect(job?.['continue-on-error']).toBeFalsy();
     const submit = steps.find((step) => /submit-indexnow/.test(step.run ?? ''));
     expect(submit?.run).toContain('--site "$SITE_URL"');
-    expect(submit?.run).toContain('--wait-for-deploy "$DEPLOY_SHA"');
     expect(submit?.run).toContain('--wait-for-key');
-    // The deploy wait and key wait share one budget — keep the total inside
-    // the job's timeout-minutes: 10 (checkout + install take the rest).
+    // Deploys are human-gated, so the submit targets whatever is live —
+    // there is no commit SHA to wait for (the old --wait-for-deploy raced
+    // the manual-deploy flow and failed on every push).
+    expect(submit?.run).not.toContain('--wait-for-deploy');
+    // The key wait budget stays inside the job's timeout-minutes: 10
+    // (checkout + install take the rest).
     expect(submit?.run).toContain('--wait-seconds 150');
     expect(submit?.env).toEqual({
       SITE_URL: '${{ steps.config.outputs.site_url }}',
       INDEXNOW_KEY: '${{ vars.INDEXNOW_KEY }}',
-      DEPLOY_SHA: '${{ github.event.workflow_run.head_sha }}',
     });
   });
 });

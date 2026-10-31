@@ -1,26 +1,26 @@
 name: IndexNow
 
 on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
+  # Deploys for this site are human-gated (pushed commits are not live until
+  # a manual deploy lands), so a CI-triggered submit would race the deploy
+  # marker and fail every time. A daily scheduled run submits whatever is
+  # live; workflow_dispatch allows an on-demand submit right after a deploy.
+  schedule:
+    - cron: '23 16 * * *' # 00:23 Asia/Shanghai, off-peak
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: indexnow-${{ github.event.workflow_run.head_branch }}
+  group: indexnow-submit
   cancel-in-progress: true
 
 jobs:
   submit:
-    # Only successful PUSH builds on main can notify IndexNow; pull-request
-    # CI never submits URLs. Uninitialized forks stop after checkout/config
-    # detection, before installing dependencies or making external requests.
-    if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
-      github.event.workflow_run.head_branch == 'main'
+    # Uninitialized forks stop after checkout/config detection, before
+    # installing dependencies or making external requests.
+    if: true
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -90,8 +90,6 @@ jobs:
         env:
           SITE_URL: ${{ steps.config.outputs.site_url }}
           INDEXNOW_KEY: ${{ vars.INDEXNOW_KEY }}
-          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
         run: >-
-          pnpm submit-indexnow -- --site "$SITE_URL"
-          --wait-for-deploy "$DEPLOY_SHA" --wait-for-key
+          pnpm submit-indexnow -- --site "$SITE_URL" --wait-for-key
           --wait-seconds 150
