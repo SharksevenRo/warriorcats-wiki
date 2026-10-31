@@ -24,10 +24,15 @@ npx -y pnpm@11.1.1 check-content
 ## Deploy
 
 ```bash
+# Build with production origin + deploy marker, then deploy to Cloudflare Pages.
+SITE_URL=https://warriorcats.anydaykit.com CF_PAGES_COMMIT_SHA=$(git rev-parse HEAD) \
+  npx -y pnpm@11.1.1 build
 npx -y wrangler@4 pages deploy dist --project-name=warriorcats-wiki --branch=main
 ```
 
-Production deploys run automatically on push to `main` via GitHub Actions (see `.github/workflows/`).
+After every push to `main`, CI runs the content gates and then a GitHub Actions
+workflow (`.github/workflows/indexnow.yml`) verifies this exact commit is live
+and submits the sitemap to IndexNow automatically.
 
 ## License
 
