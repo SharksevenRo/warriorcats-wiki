@@ -24,6 +24,7 @@ import {
   sortChapters,
   type ChapterLike,
 } from '~/lib/handbook';
+import { hasLanding } from './helpers/site-shape';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const HANDBOOK_DIR = path.resolve(ROOT, 'docs/handbook');
@@ -124,7 +125,9 @@ describe('shortTitle: nav label derivation', () => {
   });
 });
 
-describe('handbook search contract (Pagefind)', () => {
+// The landing layer is demo-repo-only: apply-template removes it from forks
+// (landingLinkEnabled = false), so these contracts have no subject there.
+describe.skipIf(!hasLanding())('handbook search contract (Pagefind)', () => {
   const src = (rel: string) => fs.readFileSync(path.resolve(ROOT, rel), 'utf8');
 
   it('HandbookChapter opts chapters into the search index', () => {

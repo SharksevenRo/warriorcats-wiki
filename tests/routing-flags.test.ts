@@ -33,12 +33,16 @@ function makeRoutingFixture(content: string): string {
 
 describe('readLocales / readDefaultLocale — success', () => {
   test('parses the real repo routing.ts', () => {
-    expect(readLocales(repoRoot)).toEqual(['en', 'ja']);
-    expect(readDefaultLocale(repoRoot)).toBe('en');
+    // Shape-agnostic on purpose: a fork may ship any locale list (apply-
+    // template drops unselected demo locales). The contract is "the real
+    // file parses, is non-empty, and actually contains its default locale".
+    const locales = readLocales(repoRoot);
+    expect(locales.length).toBeGreaterThan(0);
+    expect(locales).toContain(readDefaultLocale(repoRoot));
   });
 
   test('default root is the process cwd (repo root under vitest)', () => {
-    expect(readLocales()).toEqual(['en', 'ja']);
+    expect(readLocales()).toEqual(readLocales(repoRoot));
   });
 
   test('accepts defaultLocale with and without the `: Locale` annotation', () => {

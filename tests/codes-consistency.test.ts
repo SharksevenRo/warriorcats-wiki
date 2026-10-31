@@ -1,7 +1,8 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { readLocales } from '../scripts/lib/routing-flags';
 
 /**
  * Codes page ↔ homepage highlight consistency (第 23 轮 24h 审计发现①②的门禁半边).
@@ -36,7 +37,13 @@ import { describe, expect, it } from 'vitest';
  */
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const LOCALES = ['en', 'ja'] as const;
+// Codes pages are optional per fork (apply-template only keeps the categories
+// the forker chose). The whole consistency contract presupposes a codes page
+// in the default locale — without one there is nothing to be consistent with.
+const hasCodesPage = existsSync(join(ROOT, 'src/content/wiki/en/codes/all-codes.mdx'));
+// Locale list comes from the real routing config, not a hardcoded demo pair,
+// so a fork that ships codes pages in its own locale set is still covered.
+const LOCALES = readLocales() as readonly string[];
 
 const MONTHS: Record<string, string> = {
   January: '01',
@@ -157,7 +164,7 @@ function expiryDatesOf(fm: string): string[] {
   return dates;
 }
 
-describe('codes page ↔ home highlights consistency', () => {
+describe.skipIf(!hasCodesPage)('codes page ↔ home highlights consistency', () => {
   for (const locale of LOCALES) {
     it(`${locale}: home badge-list highlights mirror the codes page active set`, () => {
       const active = activeCodes(frontmatterOf(readCodesPage(locale)));

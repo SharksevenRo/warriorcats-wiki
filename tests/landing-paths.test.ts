@@ -15,8 +15,8 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
-import { landingPath } from '~/config/landing';
 import { handbookPath } from '~/lib/handbook';
+import { hasLanding } from './helpers/site-shape';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -37,12 +37,19 @@ function landingRouteFiles(): string[] {
   return files;
 }
 
-describe('landing layer trailing-slash contract', () => {
+// The landing layer is demo-repo-only; forks remove it via apply-template;
+// every contract in this file has no subject there.
+describe.skipIf(!hasLanding())('landing layer trailing-slash contract', () => {
   test('the route sweep actually finds the landing files (no silent empty scan)', () => {
     expect(landingRouteFiles().length).toBeGreaterThanOrEqual(14);
   });
 
-  test('landingPath() ends with "/" for both locales (logo href + toggle fallback)', () => {
+  test('landingPath() ends with "/" for both locales (logo href + toggle fallback)', async () => {
+    // Lazy import: src/config/landing.ts does not exist in forks, and a
+    // static import would kill suite collection even though every test here
+    // is skipped. Skipped tests never reach this body.
+    // @ts-ignore — demo-repo-only module, absent in forks by design.
+    const { landingPath } = await import('~/config/landing');
     expect(landingPath('en')).toBe('/landing/');
     expect(landingPath('zh')).toBe('/zh/landing/');
   });

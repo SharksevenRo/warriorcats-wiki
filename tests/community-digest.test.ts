@@ -15,13 +15,19 @@
  * without false positives on future legitimate content and stay with the
  * spec checklist + human review at PR merge.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
-import digest from '~/components/landing/community-digest.json';
-
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+// The digest JSON lives in the landing layer, which is demo-repo-only —
+// apply-template removes it from forks, so the whole contract skips there
+// instead of failing at import time.
+const digestPath = join(root, 'src/components/landing/community-digest.json');
+const digest: unknown = existsSync(digestPath)
+  ? JSON.parse(readFileSync(digestPath, 'utf8'))
+  : null;
 
 type Raw = Record<string, unknown>;
 
@@ -60,10 +66,10 @@ const PRIVACY_PATTERNS: [string, RegExp][] = [
   ['11-digit phone number', /(?<!\d)1[3-9]\d{9}(?!\d)/],
 ];
 
-const reports = data.reports ?? [];
-const dailyDates = data.daily.map((d) => d.date);
+const reports = data?.reports ?? [];
+const dailyDates = data?.daily.map((d) => d.date) ?? [];
 
-describe('community-digest.json contract (written daily by automation)', () => {
+describe.skipIf(digest === null)('community-digest.json contract (written daily by automation)', () => {
   test('top-level envelope is well-formed', () => {
     expect(data.schemaVersion).toBeGreaterThanOrEqual(2);
     expect(data.updated).toMatch(FULL_DATE);

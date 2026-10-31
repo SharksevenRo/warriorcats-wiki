@@ -14,8 +14,9 @@ import {
   checkVersionConsistency,
   type VersionCheckInputs,
 } from '../scripts/lib/check-versions';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { isForkSite } from './helpers/site-shape';
 
 const ROOT = join(__dirname, '..');
 const read = (rel: string): string => readFileSync(join(ROOT, rel), 'utf8');
@@ -109,9 +110,16 @@ describe('checkVersionConsistency (pure)', () => {
 
 describe('live repo wiring (the actual gate)', () => {
   test('all real sync surfaces are consistent today', () => {
+    // Forks don't ship the landing layer (apply-template removes it), so the
+    // landing-shared surface has no subject there — substitute a trivially
+    // consistent value instead of going red forever on a by-design absence.
+    const landingPath = join(ROOT, 'src/config/landing-shared.ts');
+    const pkgVersion = (JSON.parse(read('package.json')) as { version: string }).version;
     const checks = checkVersionConsistency({
       packageJson: read('package.json'),
-      landingShared: read('src/config/landing-shared.ts'),
+      landingShared: existsSync(landingPath)
+        ? read('src/config/landing-shared.ts')
+        : `export const PROJECT_VERSION = '${pkgVersion}';`,
       changelog: read('CHANGELOG.md'),
       roadmap: read('docs/roadmap.md'),
       agents: read('AGENTS.md'),
@@ -124,7 +132,10 @@ describe('live repo wiring (the actual gate)', () => {
       ),
       todayIso: new Date().toISOString().slice(0, 10),
     });
-    const failed = checks.filter((c) => !c.ok);
+    // The skills-* surfaces pin the demo README/docs marketing copy that
+    // enumerates the anvil-* skill family — a fork's README is game-facing
+    // content and legitimately drops that enumeration.
+    const failed = checks.filter((c) => !c.ok && !(isForkSite() && c.id.startsWith('skills-')));
     expect(failed.map((c) => `${c.id}: ${c.detail}`)).toEqual([]);
   });
 });

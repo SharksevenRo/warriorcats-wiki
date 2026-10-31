@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parseEntryId, isPossiblyOutdated, selectRelatedEntries, estimateReadMinutes, STALE_AFTER_DAYS } from '~/lib/content-utils';
+import { readLocales } from '../scripts/lib/routing-flags';
 
 describe('parseEntryId', () => {
   it('parses a simple id into locale/category/slug', () => {
@@ -11,8 +12,11 @@ describe('parseEntryId', () => {
   });
 
   it('strips the .mdx extension the glob loader includes in the id', () => {
-    expect(parseEntryId('ja/bosses/emberfang.mdx')).toEqual({
-      locale: 'ja',
+    // Use a locale this repo actually configures (forks may ship en-only) —
+    // the contract under test is the .mdx stripping, not the demo locale set.
+    const locale = readLocales().at(-1)!;
+    expect(parseEntryId(`${locale}/bosses/emberfang.mdx`)).toEqual({
+      locale,
       category: 'bosses',
       slug: 'emberfang',
     });

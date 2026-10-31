@@ -77,8 +77,13 @@ describe('HomePage ↔ en.json access contract', () => {
   });
 
   test('every home.<key>[.<sub>] access (incl. aliases) exists in en.json', () => {
+    // Optional-by-contract keys: HomePage guards the access (`{hero.videoId
+    // && …}`) and VideoSection types it `videoId?: string` — a fork that
+    // configures no trailer legitimately omits it from en.json.
+    const OPTIONAL_KEYS = new Set(['hero.videoId']);
     const offenders: string[] = [];
     for (const path of collectedHomePaths()) {
+      if (OPTIONAL_KEYS.has(path)) continue;
       if (lookup(path) === undefined) offenders.push(path);
     }
     expect(

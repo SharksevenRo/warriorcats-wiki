@@ -5,12 +5,12 @@
  * English (default locale) has no prefix; other locales are prefixed.
  */
 
-import { defaultLocale, type Locale } from '~/i18n/routing';
+import { defaultLocale } from '~/i18n/routing';
 import { siteUrl } from '~/config/site';
 import { landingLinkEnabled } from '~/config/project';
 
 /** Build a path with the locale prefix applied (or none for default locale). */
-export function localizePath(path: string, locale: Locale): string {
+export function localizePath(path: string, locale: string): string {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   // trailingSlash:'always' — every page URL ends with "/" (Cloudflare Pages
   // serves directory builds that way; canonical/sitemap/internal links must
@@ -32,7 +32,7 @@ function siteAbsolute(localizedPath: string): string {
 }
 
 /** Build an absolute URL (with domain) for a path + locale. */
-export function absoluteUrl(path: string, locale: Locale): string {
+export function absoluteUrl(path: string, locale: string): string {
   return siteAbsolute(localizePath(path, locale));
 }
 
@@ -44,23 +44,23 @@ export function absoluteUrl(path: string, locale: Locale): string {
  * Single source of truth for the logo, language switcher, breadcrumbs,
  * BreadcrumbList JSON-LD, and homepage hreflang clusters.
  */
-export function homeUrl(locale: Locale): string {
+export function homeUrl(locale: string): string {
   if (landingLinkEnabled && locale === defaultLocale) return '/demo/';
   return localizePath('/', locale);
 }
 
 /** List page URL for a category + locale. e.g. localizeListPath('bosses', 'en') -> '/bosses' */
-export function listPath(category: string, locale: Locale): string {
+export function listPath(category: string, locale: string): string {
   return localizePath(`/${category}`, locale);
 }
 
 /** Article detail URL. e.g. detailPath('bosses', 'emberfang', 'en') -> '/bosses/emberfang' */
-export function detailPath(category: string, slug: string, locale: Locale): string {
+export function detailPath(category: string, slug: string, locale: string): string {
   return localizePath(`/${category}/${slug}`, locale);
 }
 
 /** Tag index URL for a locale. e.g. tagsPath('en') -> '/tags' */
-export function tagsPath(locale: Locale): string {
+export function tagsPath(locale: string): string {
   return localizePath('/tags', locale);
 }
 
@@ -68,12 +68,12 @@ export function tagsPath(locale: Locale): string {
  * Tag aggregation page URL. `tagSlug` must come from slugifyTag() so article
  * tag links and the route params always match.
  */
-export function tagPath(tagSlug: string, locale: Locale): string {
+export function tagPath(tagSlug: string, locale: string): string {
   return localizePath(`/tags/${tagSlug}`, locale);
 }
 
 /** Recent-updates page URL for a locale. */
-export function recentPath(locale: Locale): string {
+export function recentPath(locale: string): string {
   return localizePath('/recent', locale);
 }
 
@@ -87,8 +87,8 @@ export function recentPath(locale: Locale): string {
  * is shared via siteAbsolute().
  */
 export function languageAlternates(
-  buildPath: (locale: Locale) => string,
-  locales: readonly Locale[],
+  buildPath: (locale: string) => string,
+  locales: readonly string[],
 ): Array<{ hreflang: string; href: string }> {
   return locales.map((loc) => ({
     hreflang: loc,

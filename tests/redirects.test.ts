@@ -67,6 +67,10 @@ const LOCALE_ENTRY_SOURCE_RE = /^\/(?:en|zh)?\/?$/;
 const LOCALE_ENTRY_TARGET_RE = /^\/zh\/landing\/$|^\/demo\/$/;
 
 function parseRedirects(): Rule[] {
+  // Forks ship no public/_redirects (the landing handbook slugs it pins are
+  // demo-repo-only) — return no rules instead of throwing at collection time;
+  // the describe below is skipIf-guarded on the same condition.
+  if (!existsSync(`${repoRoot}public/_redirects`)) return [];
   const raw = readFileSync(`${repoRoot}public/_redirects`, 'utf8');
   const rules: Rule[] = [];
   for (const line of raw.split('\n')) {
@@ -107,7 +111,7 @@ function slugOf(pathname: string): string {
   return parts[parts.length - 1];
 }
 
-describe('public/_redirects (renamed handbook lesson slugs)', () => {
+describe.skipIf(!existsSync(`${repoRoot}public/_redirects`))('public/_redirects (renamed handbook lesson slugs)', () => {
   const rules = parseRedirects();
   const handbookRules = rules.filter(isHandbookRule);
 
@@ -163,7 +167,7 @@ describe('public/_redirects (renamed handbook lesson slugs)', () => {
   });
 });
 
-describe('public/_redirects (locale entry points + root gateway)', () => {
+describe.skipIf(!existsSync(`${repoRoot}public/_redirects`))('public/_redirects (locale entry points + root gateway)', () => {
   const rules = parseRedirects();
   const localeEntryRules = rules.filter((r) => LOCALE_ENTRY_SOURCE_RE.test(r.source));
 
@@ -236,7 +240,7 @@ test('fork initialization deletes src/pages/demo.astro on both channels — and 
   expect(landingStep).not.toContain('src/components/RootGateway.astro');
 });
 
-test('the shadow page and the root rule agree on the redirect target', () => {
+test.skipIf(!existsSync(`${repoRoot}public/_redirects`))('the shadow page and the root rule agree on the redirect target', () => {
   // project.ts's demoRootGateway.target must stay byte-identical to the root
   // rule's target — the meta-refresh fallback and the live 301 must land on
   // the same page.

@@ -7,7 +7,7 @@
 
 import { siteUrl } from '~/config/site';
 import { site } from '~/config/site';
-import { defaultLocale, type Locale } from '~/i18n/routing';
+import { defaultLocale } from '~/i18n/routing';
 import { detailPath, homeUrl, listPath } from './url';
 
 /** Organization JSON-LD — injected globally in BaseLayout. */
@@ -27,7 +27,7 @@ export function organizationJsonLd() {
 }
 
 /** WebSite JSON-LD — injected on the homepage only. */
-export function websiteJsonLd(locale: Locale = defaultLocale) {
+export function websiteJsonLd(locale: string = defaultLocale) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -47,7 +47,7 @@ export function articleJsonLd(opts: {
   dateModified?: Date;
   category: string;
   slug: string;
-  locale: Locale;
+  locale: string;
   /** Named author (E-E-A-T) — renders as Person; falls back to the Organization. */
   authorName?: string;
   /** Profile URLs folded into the Person's sameAs (knowledge-graph signal). */
@@ -104,7 +104,7 @@ export function breadcrumbJsonLd(opts: {
   categoryLabel: string;
   title: string;
   slug: string;
-  locale: Locale;
+  locale: string;
   /** Localized "Home" label (locale JSON nav.home). */
   homeLabel?: string;
 }) {
@@ -146,7 +146,7 @@ export function simpleBreadcrumbJsonLd(opts: {
   pageLabel: string;
   /** Absolute-or-relative path of the current page for a given locale. */
   path: string;
-  locale: Locale;
+  locale: string;
   /** Localized "Home" label (locale JSON nav.home). */
   homeLabel?: string;
 }) {
@@ -175,7 +175,7 @@ export function simpleBreadcrumbJsonLd(opts: {
 export function itemListJsonLd(opts: {
   category: string;
   categoryLabel: string;
-  locale: Locale;
+  locale: string;
   items: Array<{ title: string; slug: string }>;
 }) {
   const { category, categoryLabel, locale, items } = opts;

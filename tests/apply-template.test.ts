@@ -53,6 +53,7 @@ import {
   UI_MESSAGES_BLOCK_RE,
   type SkinInput,
 } from '../scripts/lib/apply-rewrites';
+import { isForkSite } from './helpers/site-shape';
 import {
   APPLY_TEMPLATE_STRINGS,
   envDefaultLang,
@@ -251,7 +252,9 @@ describe('rewriteWranglerVars is value-aware (a re-run must not wipe the user en
     expect(rewriteWranglerVars(makeInput(), demoOnce)).toBe(demoOnce);
   });
 
-  test('DEMO_VAR_VALUES covers every live value in the shipped wrangler.toml (drift guard)', () => {
+  // Demo-repo drift guard: apply-template removes the demo state these pin,
+  // so on a fork there is no subject — skip instead of staying red forever.
+  test.skipIf(isForkSite())('DEMO_VAR_VALUES covers every live value in the shipped wrangler.toml (drift guard)', () => {
     // If the demo gains a new non-empty env value that is not registered as a
     // demo value, a re-run would PRESERVE it into every fork — the exact leak
     // this list exists to prevent. Every uncommented [vars] value must either
@@ -607,7 +610,9 @@ describe('demo asset inventories stay in sync with setup.yml (drift has shipped 
     ).toBe(true);
   });
 
-  test('every demo public file is covered by the content registry (no silent-keep holes)', () => {
+  // Demo-repo drift guard: apply-template removes the demo state these pin,
+  // so on a fork there is no subject — skip instead of staying red forever.
+  test.skipIf(isForkSite())('every demo public file is covered by the content registry (no silent-keep holes)', () => {
     for (const rel of DEMO_PUBLIC_FILES) {
       // The exact-name files (search-console token, retired pre-env IndexNow
       // key file) have no content marker — their identity IS the name.
@@ -797,7 +802,9 @@ describe('hyphen locales (zh-tw / pt-br) generate legal TypeScript', () => {
 });
 
 describe('demo locale deletion is content-aware (rebranded locales must survive re-runs)', () => {
-  test('the shipped demo locale files still carry the site.name marker (marker drift guard)', () => {
+  // Demo-repo drift guard: apply-template removes the demo state these pin,
+  // so on a fork there is no subject — skip instead of staying red forever.
+  test.skipIf(isForkSite())('the shipped demo locale files still carry the site.name marker (marker drift guard)', () => {
     for (const locale of ['en', 'ja']) {
       const raw = readFileSync(join(repoRoot, 'src/locales', `${locale}.json`), 'utf8');
       expect(isDemoLocaleContent(raw)).toBe(true);
@@ -824,7 +831,9 @@ describe('demo locale deletion is content-aware (rebranded locales must survive 
 });
 
 describe('demo article clearing is content-aware (re-runs must keep user work)', () => {
-  test('every shipped demo article carries the demo-game marker (marker drift guard)', () => {
+  // Demo-repo drift guard: apply-template removes the demo state these pin,
+  // so on a fork there is no subject — skip instead of staying red forever.
+  test.skipIf(isForkSite())('every shipped demo article carries the demo-game marker (marker drift guard)', () => {
     // Mirrors the locale marker guard above: if a template author ships a demo
     // article that never mentions the demo game, content-aware clearing would
     // KEEP it forever — this goes red in the template repo until the article
@@ -892,7 +901,9 @@ describe('setup.yml demo-author removal still matches the real authors.ts', () =
   // changes shape, the regex silently no-ops and the fork ships the demo
   // author. This contract runs the ACTUAL pattern from setup.yml against the
   // ACTUAL authors.ts, so either side drifting goes red here.
-  test('the inline python regex removes exactly the demo block, byte-preserving the rest', () => {
+  // Demo-repo drift guard: apply-template removes the demo state these pin,
+  // so on a fork there is no subject — skip instead of staying red forever.
+  test.skipIf(isForkSite())('the inline python regex removes exactly the demo block, byte-preserving the rest', () => {
     const yml = readFileSync(join(repoRoot, '.github/workflows/setup.yml'), 'utf8');
     const literal = yml.match(/re\.sub\(r"((?:[^"\\]|\\.)*)", '\\n', s\)/);
     expect(literal, 'setup.yml demo-author re.sub literal not found — step rewritten?').toBeTruthy();
@@ -1030,7 +1041,9 @@ describe('re-run identity detection (S12: re-run = confirm current, never demo d
     expect(empty.releaseDate).toBe('');
   });
 
-  test('the shipped demo site.ts parses as the demo identity (drift guard)', () => {
+  // Demo-repo drift guard: apply-template removes the demo state these pin,
+  // so on a fork there is no subject — skip instead of staying red forever.
+  test.skipIf(isForkSite())('the shipped demo site.ts parses as the demo identity (drift guard)', () => {
     const raw = readFileSync(join(repoRoot, 'src/config/site.ts'), 'utf8');
     const id = parseSiteTsIdentity(raw);
     expect(id).not.toBeNull();
@@ -1185,7 +1198,9 @@ describe('rewriteSiteTs is value-aware on the optional hand-fill fields', () => 
     expect(parseSiteTsIdentity(out)).not.toBeNull();
   });
 
-  test('demo placeholder values are wiped on a first run (shipped-file drift guard)', () => {
+  // Demo-repo drift guard: apply-template removes the demo state these pin,
+  // so on a fork there is no subject — skip instead of staying red forever.
+  test.skipIf(isForkSite())('demo placeholder values are wiped on a first run (shipped-file drift guard)', () => {
     const demoSrc = readFileSync(join(repoRoot, 'src/config/site.ts'), 'utf8');
     const out = rewriteSiteTs(demoSrc, makeInput())!;
     for (const demo of DEMO_SITE_OPTIONAL_VALUES) {
@@ -1347,7 +1362,9 @@ describe('rewriteLocaleJson overview/home are re-run-aware (M2)', () => {
 });
 
 describe('stripDemoAuthors — the CLI authors.ts regex (real-file contract + setup.yml parity)', () => {
-  test('removes exactly the demo block from the shipped authors.ts, byte-preserving the rest', () => {
+  // Demo-repo drift guard: apply-template removes the demo state these pin,
+  // so on a fork there is no subject — skip instead of staying red forever.
+  test.skipIf(isForkSite())('removes exactly the demo block from the shipped authors.ts, byte-preserving the rest', () => {
     const src = readFileSync(join(repoRoot, 'src/config/authors.ts'), 'utf8');
     const once = stripDemoAuthors(src);
     expect(once.changed).toBe(true);

@@ -48,6 +48,7 @@ import { join, dirname } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { expect, test, describe } from 'vitest';
 import { parse } from 'yaml';
+import { isForkSite } from './helpers/site-shape';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const readWorkflow = (rel: string): unknown =>
@@ -564,7 +565,9 @@ describe('setup.yml python [vars] rewrite is value-aware (executes the real here
     expect(pyValues).toEqual([...DEMO_VAR_VALUES].sort());
   });
 
-  test.skipIf(!hasPython3)('the FORKER warning block is actually removed (real-header fixture), and absence warns instead of failing', () => {
+  // apply-template consumes the FORKER warning block on a rebrand — on a fork
+  // the block is gone by design, so the real-header fixture has no subject.
+  test.skipIf(!hasPython3 || isForkSite())('the FORKER warning block is actually removed (real-header fixture), and absence warns instead of failing', () => {
     // Pinned against the REAL shipping header (authors.ts precedent): if the
     // wrangler.toml anchors drift, this goes red instead of the workflow
     // silently leaving a block that lies about the file still being demo.

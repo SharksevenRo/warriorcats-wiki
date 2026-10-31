@@ -12,6 +12,7 @@ import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
+import { hasLanding } from './helpers/site-shape';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const changelog = readFileSync(join(root, 'CHANGELOG.md'), 'utf8');
@@ -38,12 +39,16 @@ describe('CHANGELOG release contract', () => {
     }
   });
 
-  test('PROJECT_VERSION stays in sync with package.json (version 五处 release checklist, now gated)', () => {
-    const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as { version: string };
-    const shared = readFileSync(join(root, 'src/config/landing-shared.ts'), 'utf8');
-    const projectVersion = shared.match(/PROJECT_VERSION = '([^']+)'/)?.[1];
-    expect(projectVersion, "src/config/landing-shared.ts must keep PROJECT_VERSION = '<package.json version>'").toBe(
-      pkg.version,
-    );
-  });
+  // Landing layer is demo-repo-only; forks remove it via apply-template.
+  test.skipIf(!hasLanding())(
+    'PROJECT_VERSION stays in sync with package.json (version 五处 release checklist, now gated)',
+    () => {
+      const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as { version: string };
+      const shared = readFileSync(join(root, 'src/config/landing-shared.ts'), 'utf8');
+      const projectVersion = shared.match(/PROJECT_VERSION = '([^']+)'/)?.[1];
+      expect(projectVersion, "src/config/landing-shared.ts must keep PROJECT_VERSION = '<package.json version>'").toBe(
+        pkg.version,
+      );
+    },
+  );
 });
