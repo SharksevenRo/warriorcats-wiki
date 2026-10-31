@@ -76,8 +76,8 @@ export const site: SiteConfig = {
   },
   game: {
     name: 'Warrior Cats: Clans of the Forest',
-    platform: 'PC, PS5, Xbox Series X|S, Nintendo Switch',
-    developer: 'TRAILMARK Games',
+    platform: 'PC, PS5, Xbox Series X|S, Nintendo Switch, Nintendo Switch 2',
+    developer: 'Bamtang Games',
     genre: 'Turn-based Action RPG',
     releaseDate: '2026-10-23',
   },
