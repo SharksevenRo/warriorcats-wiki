@@ -49,5 +49,5 @@ PUBLIC_CF_BEACON_TOKEN = ""
 # VibeCafé product telemetry — set BOTH this and the auth key to enable.
 #PUBLIC_VIBECAFE_PRODUCT_ID = ""
 #PUBLIC_VIBECAFE_AUTH_KEY = ""
-#PUBLIC_GA_ID = ""
+PUBLIC_GA_ID = "G-RKNEKYMM9D"
 #PUBLIC_GSC_VERIFICATION = ""
