@@ -78,9 +78,13 @@ export const site: SiteConfig = {
     name: 'Warrior Cats: Clans of the Forest',
     platform: 'PC, PS5, Xbox Series X|S, Nintendo Switch, Nintendo Switch 2',
     developer: 'Bamtang Games',
-    genre: 'Turn-based Action RPG',
+    genre: 'Turn-based RPG',
     releaseDate: '2026-10-23',
   },
+  sameAs: [
+    'https://store.steampowered.com/app/3960600/',
+    'https://en.wikipedia.org/wiki/Warrior_Cats:_Clans_of_the_Forest',
+  ],
   // og:image dims of the SHIPPED hero.webp — if you replace public/images/hero.webp,
   // update these in src/config/site.ts to match (wrong dims mis-crop share cards).
   ogImageWidth: 1200,
