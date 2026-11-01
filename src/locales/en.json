@@ -16,7 +16,8 @@
     "language": "Language",
     "guides": "Guides",
     "bosses": "Bosses",
-    "items": "Items"
+    "items": "Items",
+    "maps": "Maps"
   },
   "search": {
     "placeholder": "Search the wiki...",
@@ -138,6 +139,10 @@
     "items": {
       "overviewTitle": "All Items",
       "overviewDescription": "Items and resources in Warrior Cats: Clans of the Forest — collections, useful objects, and where to find everything the forest hides."
+    },
+    "maps": {
+      "overviewTitle": "All Maps",
+      "overviewDescription": "Maps and territories in Warrior Cats: Clans of the Forest — the Lake Territories, Clan hunting grounds, and where exploration takes your cat."
     }
   },
   "home": {
