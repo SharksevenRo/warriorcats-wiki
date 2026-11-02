@@ -13,3 +13,9 @@ CF_PAGES_COMMIT_SHA="$(git rev-parse HEAD)" \
   npx -y pnpm@11.1.1 build
 
 npx -y wrangler@4 pages deploy dist --project-name="$PROJECT" --branch=main
+
+# Notify search engines of the fresh sitemap (best-effort — a rate limit here
+# must never fail the deploy). Reads the production sitemap post-deploy.
+npx -y pnpm@11.1.1 submit-indexnow -- --site "$SITE_URL" --wait-for-key \
+  --wait-for-deploy "$(git rev-parse HEAD)" --wait-seconds 120 \
+  || echo "⚠️ IndexNow submit failed (non-fatal), will retry on next deploy"
